@@ -15,6 +15,15 @@ jobs:
     defaults:
       run:
         working-directory: ./server
+    strategy:
+      fail-fast: true # Arrête tous les jobs si l'un d'entre eux échoue
+      matrix:
+        npm_command:
+          [
+            "run test:ci",
+            "run lint",
+            "audit --production --audit-level=critical",
+          ]
 
     steps:
       - uses: actions/checkout@v4
@@ -24,11 +33,14 @@ jobs:
           cache-dependency-path: ./server/package-lock.json
       - name: Install dependencies
         run: npm ci
-      - name: Verify code
-        run: npm run lint
-      - name: Verify vulnerabilities
-        run: npm audit --production --audit-level=critical
-      - name: Run tests
-        run: npm run test:ci
+      - name: exécute les tests
+        run: |
+          npm ${{ matrix.npm_command }}
+      # - name: Verify code
+      #   run: npm run lint
+      # - name: Verify vulnerabilities
+      #   run: npm audit --production --audit-level=critical
+      # - name: Run tests
+      #   run: npm run test:ci
 
       # pour le job deploy verra plus tard
