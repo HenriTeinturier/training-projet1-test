@@ -92,3 +92,50 @@ jobs:
         with:
           name: build-frontend
           path: ./client/dist
+
+  test-e2e-frontend:
+    needs: ["build-frontend", "check-tests-backend"]
+    runs-on: ubuntu-latest
+    # on ne donne pas de working-directory car on va utiliser ./client et ./server
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+      ## on install les dependences sur le serveur et cypress le fera pour nous pour le client
+      - name: Install dependencies
+        run: |
+          cd server
+          npm ci
+      # On récupère l'artifact et on le met dans client/dist
+      - name: Download build frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: build-frontend
+          path: ./client/dist
+      # on lance le backend
+      # on lance le backend avec l'option "et" "&" pour lancer le terminal en background
+      - name: Start backend
+        run: |
+          cd server
+          npm start &
+      # on utilise l'action cypress pour lancer les tests e2e
+      - name: Start e2e tests
+        uses: cypress-io/github-action@v6
+        # on doit préciser les options
+        with:
+          working-directory: client
+          browser: chrome
+          # on lance notre serveur en mode preview (necessite le build préalable)
+          # Rappel: preview lance un serveur en utilisant le dossier dist
+          start: npm run preview
+          # on précise d'attendre que le serveur réponde sur le port 4173
+          wait-on: http://localhost:4173
+          # on peut préciser une durée de timeout si on arrive pas à se connecter au serveur
+          wait-on-timeout: 60
+          # on précise la baseUrl: C'est notre serveur
+          # On pourrait faire le test après le deploiement sur le vps en précisant une url externe
+          config: baseUrl=http://localhost:4173
