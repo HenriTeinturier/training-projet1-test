@@ -96,6 +96,9 @@ jobs:
   test-e2e-frontend:
     needs: ["build-frontend", "check-tests-backend"]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chrome, firefox, edge]
     # on ne donne pas de working-directory car on va utiliser ./client et ./server
     steps:
       - name: Checkout code
@@ -128,7 +131,7 @@ jobs:
         # on doit préciser les options
         with:
           working-directory: client
-          browser: chrome
+          browser: ${{ matrix.browser }}
           # on lance notre serveur en mode preview (necessite le build préalable)
           # Rappel: preview lance un serveur en utilisant le dossier dist
           start: npm run preview
