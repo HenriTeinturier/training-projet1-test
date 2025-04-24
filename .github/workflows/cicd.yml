@@ -142,3 +142,23 @@ jobs:
           # on précise la baseUrl: C'est notre serveur
           # On pourrait faire le test après le deploiement sur le vps en précisant une url externe
           config: baseUrl=http://localhost:4173
+
+  deploy:
+    needs: ["build-frontend", "check-tests-backend"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-frontend
+          path: ./dist
+      - name: Deploy
+        run: |
+          eval "$(ssh-agent -s)"
+          ssh-add - <<< "${{ secrets.SSH_KEY_VPS }}"
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ env.SERVER_IP }} >> ~/.ssh/known_hosts
+          scp -r ./server ${{ env.SERVER_USER }}@${{ env.SERVER_IP }}:/home/ubuntu/
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_IP }} "cd /home/ubuntu/server && source ~/.nvm/nvm.sh && npm ci --omit=dev"
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_IP }} "cd /home/ubuntu/server && source ~/.nvm/nvm.sh && pm2 startOrRestart ecosystem.config.js --env production && pm2 save"
