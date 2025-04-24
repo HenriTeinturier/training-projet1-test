@@ -144,7 +144,7 @@ jobs:
           config: baseUrl=http://localhost:4173
 
   deploy:
-    needs: ["build-frontend", "check-tests-backend"]
+    needs: ["test-e2e-frontend", "check-tests-backend"]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
