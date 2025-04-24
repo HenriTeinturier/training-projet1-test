@@ -158,7 +158,7 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add - <<< "${{ secrets.SSH_KEY_VPS }}"
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ env.SERVER_IP }} >> ~/.ssh/known_hosts
-          scp -r ./server ${{ env.SERVER_USER }}@${{ env.SERVER_IP }}:/home/ubuntu/
-          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_IP }} "cd /home/ubuntu/server && source ~/.nvm/nvm.sh && npm ci --omit=dev"
-          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_IP }} "cd /home/ubuntu/server && source ~/.nvm/nvm.sh && pm2 startOrRestart ecosystem.config.js --env production && pm2 save"
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          scp -r ./server ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/ubuntu/
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd /home/ubuntu/server && source ~/.nvm/nvm.sh && npm ci --omit=dev"
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd /home/ubuntu/server && source ~/.nvm/nvm.sh && pm2 startOrRestart ecosystem.config.js --env production && pm2 save"
