@@ -23,7 +23,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: ./server/package-lock.json
       - name: Install dependencies
-        run: npm CI/CD
+        run: npm ci
       - name: Verify code
         run: npm run lint
       - name: Verify vulnerabilities
