@@ -1,0 +1,1 @@
+![Statut](https://github.com/HenriTeinturier/training-projet1-test/actions/workflows/main.yml/badge.svg)
